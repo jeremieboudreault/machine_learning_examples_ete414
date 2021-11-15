@@ -98,3 +98,107 @@ hydro_data <- hydro_data[, .(
     WATERTEMP_MAX,
     FLOW_MEAN
 )]
+
+
+# Weather data -----------------------------------------------------------------
+
+
+# Imports.
+weather_data <- data.table::fread(
+    file.path("data", "weather", "USW00024144.csv")
+)
+
+# Update column names.
+colnames(weather_data) <- c(
+    "STNID",
+    "STNNAME",
+    "LATITUDE",
+    "LONGITUDE",
+    "ELEVATION",
+    "DATE",
+    "CLOUDMANUAL",
+    "CLOUDMANUAL_FLAG",
+    "CLOUDAUTO",
+    "CLOUDAUTO_FLAG",
+    "WIND_MEAN",
+    "WIND_MEAN_FLAG",
+    "PRECIP_MEAN",
+    "PRECIP_MEAN_FLAG",
+    "SUNSHINE_PERCENT",
+    "SUNSHINE_PERCENT_FLAG",
+    "SNOWFALL",
+    "SNOWFALL_FLAG",
+    "SNOWDEPTH",
+    "SNOWDEPTH_FLAG",
+    "AIRTEMP_MEAN",
+    "AIRTEMP_MEAN_FLAG",
+    "AIRTEMP_MAX",
+    "AIRTEMP_MAX_FLAG",
+    "AIRTEMP_MIN",
+    "AIRTEMP_MIN_FLAG",
+    "SUNSHINE_TOTAL",
+    "SUNSHINE_TOTAL_FLAG",
+    "WIND_GUST",
+    "WIND_GUST_FLAG"
+)
+
+# Convect values to numeric.
+weather_data[, SUNSHINE_PERCENT := as.numeric(SUNSHINE_PERCENT)]
+weather_data[, SUNSHINE_TOTAL := as.numeric(SUNSHINE_TOTAL)]
+weather_data[, CLOUDMANUAL := as.numeric(CLOUDMANUAL)]
+weather_data[, CLOUDAUTO   := as.numeric(CLOUDAUTO)]
+weather_data[, CLOUD       := rowMeans(
+    x     = weather_data[, .(CLOUDMANUAL, CLOUDAUTO)],
+    na.rm = TRUE
+)]
+
+# Convert to date values and create YEAR, MONTH and DAYOFYEAR values.
+weather_data[, DATE := as.Date(DATE)]
+weather_data[, `:=`(
+    YEAR       = as.integer(format(DATE, "%Y")),
+    MONTH      = as.integer(format(DATE, "%m")),
+    DAYOFYEAR  = as.integer(format(DATE, "%j"))
+)]
+
+# Check values (factors)
+table(weather_data$STNID,       useNA = "ifany")
+table(weather_data$STNNAME,     useNA = "ifany")
+table(weather_data$LATITUDE,    useNA = "ifany")
+table(weather_data$LONGITUDE,   useNA = "ifany")
+table(weather_data$ELEVATION,   useNA = "ifany")
+table(weather_data$CLOUDMANUAL, useNA = "ifany")
+table(weather_data$CLOUDAUTO,   useNA = "ifany")
+
+# Check values (date).
+range(weather_data$DATE)
+range(weather_data$YEAR)
+range(weather_data$MONTH)
+range(weather_data$DAYOFYEAR)
+
+# Check values (numeric).
+summary(weather_data$CLOUD)
+summary(weather_data$WIND_MEAN)
+summary(weather_data$WIND_GUST)
+summary(weather_data$PRECIP_MEAN)
+summary(weather_data$SUNSHINE_PERCENT)
+summary(weather_data$SUNSHINE_TOTAL)
+summary(weather_data$SNOWFALL)
+summary(weather_data$SNOWDEPTH)
+summary(weather_data$AIRTEMP_MEAN)
+summary(weather_data$AIRTEMP_MIN)
+summary(weather_data$AIRTEMP_MAX)
+
+# Keep only columns of interest.
+weather_data <- weather_data[, .(
+    DATE,
+    AIRTEMP_MEAN,
+    AIRTEMP_MIN,
+    AIRTEMP_MAX,
+    PRECIP_MEAN,
+    CLOUD,
+    SUNSHINE_PERCENT,
+    SUNSHINE_TOTAL,
+    WIND_MEAN,
+    WIND_GUST
+)]
+
