@@ -202,3 +202,17 @@ weather_data <- weather_data[, .(
     WIND_GUST
 )]
 
+
+# Combine both data ------------------------------------------------------------
+
+
+data <- data.table::merge.data.table(
+    x     = hydro_data,
+    y     = weather_data,
+    by    = "DATE",
+    all.x = TRUE
+)
+
+
+
+
