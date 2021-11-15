@@ -213,6 +213,45 @@ data <- data.table::merge.data.table(
     all.x = TRUE
 )
 
+# Clean data prior to exporting ------------------------------------------------
 
 
+# Check missing <WATERTEMP>.
+sum(is.na(data$WATERTEMP_MAX))
+sum(is.na(data$WATERTEMP_MIN))
+sum(is.na(data$WATERTEMP_MEAN))
+
+# Try to fix some <WATERTEMP_MEAN>.
+data[is.na(WATERTEMP_MEAN), WATERTEMP_MEAN := (WATERTEMP_MAX + WATERTEMP_MIN) / 2]
+sum(is.na(data$WATERTEMP_MEAN))
+
+# Remove data that have no <WATERTEMP_MEAN>.
+data <- data[!is.na(WATERTEMP_MEAN) & !is.na(WATERTEMP_MAX) & !is.na(WATERTEMP_MIN), ]
+
+# Try to fix some <AIRTEMP_MEAN>.
+sum(is.na(data$AIRTEMP_MEAN))
+data[is.na(AIRTEMP_MEAN), AIRTEMP_MEAN := (AIRTEMP_MAX + AIRTEMP_MIN) / 2]
+sum(is.na(data$AIRTEMP_MEAN))
+
+# Remove remaining missing air temp.
+data <- data[!is.na(AIRTEMP_MEAN) & !is.na(AIRTEMP_MAX) & !is.na(AIRTEMP_MIN)]
+
+# Final check on temperature.
+sum(is.na(data$AIRTEMP_MEAN))
+sum(is.na(data$AIRTEMP_MIN))
+sum(is.na(data$AIRTEMP_MAX))
+
+# Filter on non-freezing months.
+data <- data[MONTH %in% seq.int(4L, 10L)]
+
+
+# Export final dataset ---------------------------------------------------------
+
+
+data.table::fwrite(
+    x    = data,
+    file = file.path("data", "cleaned",
+                     sprintf("hydro_weather_data_%s.csv", dataset_ver)
+    )
+)
 
