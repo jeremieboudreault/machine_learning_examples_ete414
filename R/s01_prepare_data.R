@@ -250,8 +250,8 @@ data <- data[MONTH %in% seq.int(4L, 10L)]
 
 data.table::fwrite(
     x    = data,
-    file = file.path("data", "cleaned",
-                     sprintf("hydro_weather_data_%s.csv", dataset_ver)
+    file = file.path(
+        "data", "cleaned", sprintf("hydro_weather_data_%s.csv", dataset_ver)
     )
 )
 
