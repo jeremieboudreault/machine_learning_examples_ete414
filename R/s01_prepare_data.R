@@ -241,6 +241,13 @@ sum(is.na(data$AIRTEMP_MEAN))
 sum(is.na(data$AIRTEMP_MIN))
 sum(is.na(data$AIRTEMP_MAX))
 
+# Some correction to the values.
+data[is.na(FLOW_MEAN),      FLOW_MEAN      := median(data$FLOW_MEAN, na.rm = TRUE)]
+data[is.na(PRECIP_MEAN),    PRECIP_MEAN    := median(data$PRECIP_MEAN, na.rm = TRUE)]
+data[is.na(CLOUD),          CLOUD          := median(data$CLOUD, na.rm = TRUE)]
+data[is.na(SUNSHINE_TOTAL), SUNSHINE_TOTAL := median(data$SUNSHINE_TOTAL, na.rm = TRUE)]
+data[is.na(WIND_MEAN),      WIND_MEAN      := median(data$WIND_MEAN, na.rm = TRUE)]
+
 # Filter on non-freezing months.
 data <- data[MONTH %in% seq.int(4L, 10L)]
 
