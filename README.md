@@ -10,7 +10,7 @@ Données
 --------------------------------------------------------------------------------
 
 
-Les données consistent sont observations hydrologiques sur la Missouri près de Toston (proviennent de USGS) et des observations météorlogiques une station météorologique à proximité (proviennent de la NOAA)
+Les données sont observations hydrologiques sur la Missouri près de Toston (proviennent de USGS) et des observations météorologiques à une station à proximité (proviennent de la NOAA)
 
 
 Scripts R
