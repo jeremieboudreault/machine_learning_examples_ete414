@@ -1,16 +1,16 @@
 Réseaux de neurones pour modéliser la température de l'eau en R 
 --------------------------------------------------------------------------------
 
-+ Un projet de __Jeremie Boudreault__ dans le cadre du cours ETE414 à l'INRS.
++ Un projet de __Jeremie Boudreault__ dans le cadre de l'enseignement du cours ETE414 à l'INRS.
 + Les scripts et les données sont rendus disponibles sous la license [Creative Common License ![](https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png)](http://creativecommons.org/licenses/by-nc-nd/4.0/)
-+ Any questions should be sent to __Jeremie.Boudreault [at] inrs [dot] ca__
++ Les question peuvent être addressées directement à l'adresse :  __[Mon prénom].[Mon nom] [at] inrs [dot] ca__
 
 
 Données
 --------------------------------------------------------------------------------
 
 
-Les données consistent des observations hydrologiques sur la Missouri près de Toston et des observations météorlogiques à la station
+Les données consistent sont observations hydrologiques sur la Missouri près de Toston (proviennent de USGS) et des observations météorlogiques une station météorologique à proximité (proviennent de la NOAA)
 
 
 Scripts R
