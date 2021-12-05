@@ -58,6 +58,28 @@ nrow(data_scaled_train)/nrow(data_scaled)
 nrow(data_scaled_test)/nrow(data_scaled)
 
 
+# Exports datasets for traceability --------------------------------------------
+
+
+# Columns of interest.
+cols <- c(
+    "WATERTEMP_MEAN", "AIRTEMP_MEAN", "FLOW_MEAN", "PRECIP_MEAN",
+    "CLOUD", "SUNSHINE_TOTAL", "WIND_MEAN"
+)
+
+# Export train data.
+data.table::fwrite(
+    x    = data_scaled_train[, cols],
+    file = file.path("data", "cleaned", "water_temp_data_scaled_train.csv")
+)
+
+# Export test data.
+data.table::fwrite(
+    x    = data_scaled_test[, cols],
+    file = file.path("data", "cleaned", "water_temp_data_scaled_test.csv")
+)
+
+
 # Formula ----------------------------------------------------------------------
 
 
