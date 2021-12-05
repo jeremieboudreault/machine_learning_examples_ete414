@@ -1,4 +1,4 @@
-Réseaux de neurones pour modéliser la température de l'eau en R 
+Réseaux de neurones pour modéliser la température de l'eau 🌊🌡
 --------------------------------------------------------------------------------
 
 + Un projet de __Jeremie Boudreault__ dans le cadre de l'enseignement du cours ETE414 à l'INRS.
