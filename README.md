@@ -33,12 +33,17 @@ Pour la classification, un seuil de la température de l'eau de >20ºC a été d
 Scripts R
 --------------------------------------------------------------------------------
 
+Script de base :
+
 + `R/s01_prepare_data.R` : préparation des jeux de données, fusion et traitements des NAs.
-+ `R/s01_prepare_data_classif.R` : préparation des données de classification.
 + `R/s02_models_linear_reg.R` : modèles de régression linéaire simple avec la température de l'air.
 + `R/s03_models_neural_net.R` : réseaux de neurones pour modéliser la température de l'eau.
 + `R/s04_models_tree.R` : abre de décision pour prédire l'ouverture ou la fermeture de la pêche.
 + `R/s05_models_rf_boost.R` : forêt aléatoires et boosting pour prédire la température de l'eau.
+
+Documents Rmarkdown :
+
++ `rmd/exemples_R_arbres_forets_boosting.Rmd` : Document d'exemples en R présentant les arbre de décision, le bagging, les forêts aléatoires et le boosting
 
 
 Scripts Python
