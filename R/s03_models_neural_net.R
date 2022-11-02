@@ -4,7 +4,7 @@
 # Step 03 : Fit neural networks to water temperature.
 
 
-# Project : water_temperature_neural_networkds
+# Project : water_temperature_machine_learning_ete414
 # Author  : Jeremie Boudreault
 # Email   : Jeremie.Boudreault [at] inrs [dot] ca
 # Depends : R (v4.2.1)

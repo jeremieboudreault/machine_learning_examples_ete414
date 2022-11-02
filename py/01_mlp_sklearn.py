@@ -4,7 +4,7 @@
 # 1 : Fit MLP to river tempeature data using Scikit-learn.
 
 
-# Project : water_temperature_neural_networks
+# Project : water_temperature_machine_learning_ete414
 # Author  : Jeremie Boudreault
 # Email   : Prenom.Nom@inrs.ca
 # Depends : Python 3.10.7. 
