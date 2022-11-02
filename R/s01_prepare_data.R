@@ -292,7 +292,7 @@ data_final <- data[, .(DATE,
 
 
 data.table::fwrite(
-    x    = data,
+    x    = data_final,
     file = file.path(
         "data", "cleaned", sprintf("hydro_weather_data_%s.csv", dataset_ver)
     )
