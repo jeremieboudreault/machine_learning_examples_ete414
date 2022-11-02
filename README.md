@@ -3,7 +3,7 @@ Cours ETE414 : Exemples d'apprentissage automatique ⚙️
 
 + Un projet de [**Jérémie Boudreault**](http://jeremieboudreault.github.io) dans le cadre de l'enseignement du cours ETE414 à l'INRS.
 + Les scripts et les données sont rendus disponibles sous la license [Creative Common License ![](https://i.creativecommons.org/l/by-nc-nd/4.0/80x15.png)](http://creativecommons.org/licenses/by-nc-nd/4.0/)
-+ Les question peuvent être addressées directement à l'adresse :  __[Mon prénom].[Mon nom] [at] inrs [dot] ca__
++ Les question peuvent être addressées directement à l'adresse : [Prenom.Nom@inrs.ca](mailto:Prenom.Nom@inrs.ca)
 
 
 Historique 
