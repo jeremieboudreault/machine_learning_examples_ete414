@@ -1,4 +1,4 @@
-ETE414 : Exemples de modèle d'apprentissage automatique ⚙️
+ETE414 : Exemples de modèles d'apprentissage automatique ⚙️
 ================================================================================
 
 + Un projet de [**Jérémie Boudreault**](http://jeremieboudreault.github.io) dans le cadre de l'enseignement du cours ETE414 à l'INRS.
@@ -13,7 +13,7 @@ Historique
 
     + Modélisation de l'ouverte/fermeture de la pêche (classification) avec arbre de décision en *R*
     + Modélisation la température de l'eau (régression) avec bagging, forêt aléatoire et boosting en *R*
-    + Modélisation de la température de l'eau (régression) avec les réseaux de neurones en *Python*
+    + Modélisation de la température de l'eau (régression) avec les réseaux de neurones en *R* et *Python*
 
 + **Automne 2021** : Première édition du cours
 
@@ -27,7 +27,7 @@ Les données sont observations hydrologiques sur la Missouri près de Toston (pr
 
 Pour les exemples de régression, on cherche à prédire la température (moyenne) de l'eau avec les variables hydrométéorologiques.
 
-Pour la classification, un seuil de la température de l'eau de >20ºC a été défini pour la fermeture de la pêche. On cherche à prédire la fermeture/ouverture de la pêche avec les deux variables : température de l'air et débit.
+Pour la classification, un seuil de la température de l'eau de Tmax > `20ºC` a été défini pour la fermeture de la pêche. On cherche à prédire la fermeture/ouverture de la pêche avec deux variables : la température de l'air et le débit.
 
 
 Scripts R
@@ -39,17 +39,16 @@ Script de base :
 + `R/s02_models_linear_reg.R` : modèles de régression linéaire simple avec la température de l'air.
 + `R/s03_models_neural_net.R` : réseaux de neurones pour modéliser la température de l'eau.
 + `R/s04_models_tree.R` : abre de décision pour prédire l'ouverture ou la fermeture de la pêche.
-+ `R/s05_models_rf_boost.R` : forêt aléatoires et boosting pour prédire la température de l'eau.
 
 Documents Rmarkdown :
 
-+ `rmd/exemples_R_arbres_forets_boosting.Rmd` : Document d'exemples en R présentant les arbre de décision, le bagging, les forêts aléatoires et le boosting
++ `rmd/exemples_R_arbres_forets_boosting.Rmd` : Document d'exemples en R présentant les arbres de décision, le bagging, les forêts aléatoires et le boosting
 
 
 Scripts Python
 --------------------------------------------------------------------------------
 
-+ `python/s01_models_neural_net.pt` : réseaux de neurones pour modéliser la température de l'eau.
++ `python/01_mlp_sklearn.py` : réseaux de neurones pour modéliser la température de l'eau.
 
 
 ___Enjoy !___ ✌🏻
