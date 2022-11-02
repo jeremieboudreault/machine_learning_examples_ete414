@@ -19,6 +19,7 @@ import pandas as pd                                # Pandas DataFrame
 from sklearn.neural_network import MLPRegressor    # MLP regressor
 from sklearn.model_selection import GridSearchCV   # CV Grid Search
 import sklearn.metrics                             # Metrics
+import math                                        # Math functions
 
 
 # Imports ----------------------------------------------------------------------
@@ -123,7 +124,7 @@ cv = GridSearchCV(
 
 
 # Process cross-validation.
-cv.fit(x_train, y_train)
+cv.fit(x_train, y_train)       # Take ~ 30 minutes to run.
 
 # Extract results of the fitting.
 cv_results = pd.DataFrame(cv.cv_results_)
@@ -143,14 +144,17 @@ cv_results.to_csv(
 
 # Extract best model.
 model = cv.best_estimator_
+model
+# MLPRegressor(activation='tanh', hidden_layer_sizes=(9, 9, 7, 7), max_iter=10000,
+#             random_state=2912, tol=1e-05)
 
 # Compute RMS on train and test.
-rmse_train = sklearn.metrics.root_mean_squared_error(regr.predict(x_train), y_train)
-rmse_test = sklearn.metrics.root_mean_squared_error(model.predict(x_test), y_test)
+rmse_train = math.sqrt(sklearn.metrics.mean_squared_error(model.predict(x_train), y_train))
+rmse_test = math.sqrt(sklearn.metrics.mean_squared_error(model.predict(x_test), y_test))
 
 # Print results.
-print("RMSE (train) = ", rmse_train)
-print("RMSE (test) = ", rmse_test)
+print("RMSE (train) = ", rmse_train)  # 1.6948491141166877
+print("RMSE (test) = ", rmse_test)    # 1.743662617112954
 
 
 # Interpretation ---------------------------------------------------------------
