@@ -57,7 +57,7 @@ test.shape
 
 
 # Set y columns.
-y_col = "WATERTEMP_MEAN"
+y_col = "WATERTEMP"
 
 # Train.
 x_train = train.loc[:, train.columns != y_col]
@@ -80,13 +80,18 @@ pd.value_counts(folds)/len(y_train)
 hyper = {
     'activation':(
         'relu', 
-        'tanh'
+        'tanh',
+        'logistic'
     ), 
     'hidden_layer_sizes': (
         (5), 
-        (5, 7)
+        (7, 5),
+        (9, 7, 5),
+        (9, 9, 7, 7),
+        (15, 9, 9, 7)
     ),
     'learning_rate_init':(
+        0.0005,
         0.001,
         0.01
     )
@@ -95,39 +100,38 @@ hyper = {
 # Set estimator.
 mlp = MLPRegressor(
     random_state        = 2912, 
-    #hidden_layer_sizes  = (9, 9, 7, 5),
-    #activation          = "tanh",
     solver              = "adam",
-    #learning_rate_init  = 0.001,
     max_iter            = 10000,
     tol                 = 0.00001,
     verbose             = False,
-    #early_stopping      = True,   # Because we perform cross validaiton, we will not do early stopping
-    #validation_fraction = 0.3
+    early_stopping      = False
 )
 
 # Set grid search for 5-fold cross-validation.
 cv = GridSearchCV(
-    estimator  = mlp,         # The estimator
-    param_grid = hyper,       # The dictionnary of hyper parameters.
-    scoring    = "neg_root_mean_squared_error",
-    n_jobs     = -1,         # Run in parallel on all processors
-    refit      = True,        # Refit the model with the best model
-    cv         = 5,          # Number of folds in CV.
-    verbose    = 3          # Show results while fitting.
+    estimator  = mlp,                               # The estimator
+    param_grid = hyper,                             # The dictionnary of hyper parameters.
+    scoring    = "neg_root_mean_squared_error",     # The error to minimize
+    n_jobs     = -1,                                # Run in parallel on all processors
+    refit      = True,                              # Refit with the best model
+    cv         = 5,                                 # Number of folds in CV.
+    verbose    = 3                                  # Show results while fitting.
 )
 
 # Process cross validation.
 cv.fit(x_train, y_train)
 
-# Results of the fitting.
-View(pd.DataFrame(cv.cv_results_))
+# Extract results of the fitting.
+cv_results = pd.DataFrame(cv.cv_results_)
+View(cv_results)
 
 # Extract best model.
 model = cv.best_estimator_
 
-#regr.score(x_train, y_train)
-#regr.score(x_test, y_test)
+# Compute RMS on train and test.
+rmse_train = sklearn.metrics.root_mean_squared_error(regr.predict(x_train), y_train)
+rmse_test = sklearn.metrics.root_mean_squared_error(model.predict(x_test), y_test)
 
-#math.sqrt(sklearn.metrics.mean_squared_error(regr.predict(x_train), y_train))
-math.sqrt(sklearn.metrics.mean_squared_error(model.predict(x_test), y_test))
+# Print results.
+print("RMSE (train) = ", rmse_train)
+print("RMSE (test) = ", rmse_test)
