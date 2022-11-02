@@ -31,7 +31,7 @@ data <- data.table::fread(
 # Scaling ----------------------------------------------------------------------
 
 
-data_scaled <- scale(data[, -c("DATE", "YEAR", "MONTH", "DAYOFYEAR")])
+data_scaled <- scale(data[, -c("DATE", "YEAR", "MONTH", "DAYOFYEAR", "WATERTEMP_MEAN")])
 
 
 # Training-Test split ----------------------------------------------------------
@@ -48,8 +48,8 @@ train <- sample(
 )
 
 # Split data.
-data_scaled_train <- data_scaled[train, ]
-data_scaled_test  <- data_scaled[-train, ]
+data_scaled_train <- cbind(data[train, c("WATERTEMP_MEAN")], data_scaled[train, ])
+data_scaled_test  <- cbind(data[-train, c("WATERTEMP_MEAN")], data_scaled[-train, ])
 
 # Check split.
 nrow(data_scaled_train)
@@ -69,13 +69,13 @@ cols <- c(
 
 # Export train data.
 data.table::fwrite(
-    x    = data_scaled_train[, cols],
+    x    = data_scaled_train[, ..cols],
     file = file.path("data", "cleaned", "water_temp_data_scaled_train.csv")
 )
 
 # Export test data.
 data.table::fwrite(
-    x    = data_scaled_test[, cols],
+    x    = data_scaled_test[, ..cols],
     file = file.path("data", "cleaned", "water_temp_data_scaled_test.csv")
 )
 
