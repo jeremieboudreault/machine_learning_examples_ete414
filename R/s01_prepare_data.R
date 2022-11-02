@@ -272,9 +272,10 @@ data[-train, DATASET := "TEST"]
 table(data$DATASET, useNA = "always")
 
 
-# Reorder dataset --------------------------------------------------------------
+# Dataset for water temperature modelling --------------------------------------
 
 
+# Final data for temperature modelling
 data_final <- data[, .(DATE,
          DATASET,
          WATERTEMP = WATERTEMP_MEAN,
@@ -286,14 +287,30 @@ data_final <- data[, .(DATE,
          WIND      = WIND_MEAN
 )]
 
-
-# Export final dataset ---------------------------------------------------------
-
-
+# Export.
 data.table::fwrite(
     x    = data_final,
     file = file.path(
         "data", "cleaned", sprintf("hydro_weather_data_%s.csv", dataset_ver)
     )
 )
+
+
+# Dataset for fishing season ---------------------------------------------------
+
+
+# Create an indicator of open-closed fishing.
+data[WATERTEMP_MAX > 20, IND := "Fermée"]
+data[WATERTEMP_MAX <= 20, IND := "Ouverte"]
+
+# Create a subset of the data.
+data_fishing <- data[, .(
+    Date        = DATE,
+    Peche       = IND,
+    Temperature = AIRTEMP_MEAN,
+    Debit       = FLOW_MEAN
+)]
+
+# Export to rmd/data.
+data.table::fwrite(data_fishing, "rmd/data/donnees_peche_classification.csv")
 
