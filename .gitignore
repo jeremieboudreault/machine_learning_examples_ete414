@@ -4,3 +4,5 @@
 .Ruserdata
 tmp/*
 notebook/*
+rmd/exemples_R_arbres_forets_boosting_cache/*
+rmd/exemples_R_arbres_forets_boosting_files/*
