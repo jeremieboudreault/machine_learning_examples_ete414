@@ -1,4 +1,4 @@
-Cours ETE414 : Exemples d'apprentissage automatique ⚙️
+ETE414 : Exemples de modèle d'apprentissage automatique ⚙️
 ================================================================================
 
 + Un projet de [**Jérémie Boudreault**](http://jeremieboudreault.github.io) dans le cadre de l'enseignement du cours ETE414 à l'INRS.
