@@ -1,0 +1,350 @@
+---
+title: "Exemples en R d'arbres de décision, de forêts aléatoires et de boosting"
+output: github_document
+---
+
+Document préparé dans le cadre du cours ETE414 - Science des données et applications (environnementales), à l'automne 2022 au Centre Eau Terre Environnement de l'Institut national de la recherche scientifique (INRS). 
+
+© Jeremie Boudreault
+
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(
+    cache = TRUE
+)
+```
+
+## 1. Arbres de décision
+
+### 1.1. Chargement et prépration des données
+
+Installation du package :
+
+```r
+install.packages("tree")
+```
+
+Chargement du package :
+
+```{r message=FALSE}
+library(tree)
+```
+
+Chargement des données :
+
+```{r}
+x <- read.csv("data/donnees_peche_classif.csv")
+x$Peche <- as.factor(x$Peche)   # Conversion d'une valeur textuelle en factor (0-1)
+```
+
+On regarde les 5 premières lignes des données : 
+
+```{r}
+head(x, n = 5)
+```
+
+Il s'agit des mêmes données que celles présentées en classe.
+
+On affiche les données : 
+
+```{r}
+plot(
+    x    = x$Debit, 
+    y    = x$Temperature, 
+    xlab = "Débit",
+    ylab = "Température de l'air",
+    main = "Ouverture de la pêche selon la température et le débit",
+    col  = x$Peche, 
+    pch  = 21
+)
+legend(
+    x      = "bottomright", 
+    legend = c("Fermée", "Ouverte"),
+    col    = c("black", "pink"), 
+    pch    = 21
+)
+```
+
+### 2.1. Entraînement du modèle
+
+On entraîne un arbre complet :
+
+```{r}
+model_complet <- tree(
+    formula = Peche ~ Debit + Temperature,
+    data    = x,
+    control = tree.control(
+        nobs   = nrow(x),
+        mindev = 0             # Permet d'entraîner l'arbre completement
+    )
+)
+```
+
+On affiche l'arbre complet : 
+
+```{r}
+plot(model_complet)
+text(model_complet, pretty = 1L, cex = 0.5)
+title("Arbre de décision complet")
+```
+
+L'arbre est évidemment trop gros. On va procéder à l'élagage en ne gardant que les 3 premières feuille :
+
+```{r}
+model_3feuilles <- prune.tree(model_complet, best = 3L)
+```
+
+On affiche le modèle résultant :
+
+```{r}
+plot(model_3feuilles)
+text(model_3feuilles, pretty = 1L)
+title("Arbres de décision avec 3 feuilles")
+```
+
+### 1.3. Meilleur modèle en validation croisée
+
+Idéalement, on voudrait savoir le nombre optimal de feuilles à conserver. Pour ce faire, on peut faire une validation croisée (cross validation) directement avec la fonction `cv.tree` :
+
+```{r}
+set.seed(2912L)  # Une amorce pour avoir des résultats reproductibles.
+cv_resultats <- cv.tree(model_complet, K = 5)  # k est le nombre de plis (folds) à utiliser
+```
+
+On affiche les résultats la validation croisée :
+
+```{r}
+plot(
+    x    = rev(cv_resultats$size)[1:20],
+    y    = rev(cv_resultats$dev)[1:20],
+    main = "Résultats de la validation croisée",
+    xlab = "Nombre de feuilles",
+    ylab = "Erreur en validation croisée",
+    type = "o"
+)
+points(x = 7, y = 3500, pch = "x", col = "red")
+```
+
+L'erreur cesse de diminuer lorsqu'il y a environ 7 feuilles. Cela sera notre meilleur modèle. Regardons de quoi il a l'air :
+
+```{r}
+model_optimal <- prune.tree(model_complet, best = 7L)
+plot(model_optimal)
+text(model_optimal, pretty = 1L)
+title("Arbres de décision optimal")
+```
+
+On voit que pour toutes les feuilles de gauche, la prédiction est "ouverte". C'est parce que le modèle prédit une probabilité d'ouverture et de fermeture, et que le graphique montre les résultats avec un seuil de 50%. Avec des seuils différents, les valeurs prédites d'ouverture et de fermeture pourraient changer. 
+
+### 1.4. Prédictions
+
+Prédictions des probabalités de ce modèle :
+
+```{r}
+predictions <- predict(model_optimal, newdata = x, type = "vector")
+head(predictions, 5) # Les 5 premières valeurs
+```
+
+Prédictions des classes de ce modèle (avec probabilité 50%) : 
+
+```{r}
+x$Peche_Predite <- predict(model_optimal, newdata = x, type = "class")
+head(x$Peche_Predite, 5) # Les 5 premières valeurs
+```
+
+On affiche les résultats prédits :
+
+```{r}
+plot(
+    x    = x$Debit, 
+    y    = x$Temperature, 
+    xlab = "Débit",
+    ylab = "Température de l'air",
+    col  = x$Peche_Predite, 
+    pch  = 21,
+    main = "Prediction de l'ouverture de la pêche"
+)
+legend(
+    x      = "bottomright", 
+    col    = c("black", "pink"), 
+    pch    = 21, 
+    legend = c("Fermée", "Ouverte")
+)
+```
+
+---
+
+## 2. Méthodes d'ensemble : bagging, forêts aléatoires et boosting
+
+### 2.1. Chargement et préparation des données
+
+Installation des package :
+
+```r
+install.packages("randomForest") # Pour forêt aléatoire et bagging
+install.packages("gbm") # Pour boosting
+```
+
+Chargement des package :
+
+```{r message=FALSE}
+library(randomForest)
+library(gbm)
+```
+
+Chargement des données :
+
+```{r}
+x <- read.csv("data/donnees_temp_eau_reg.csv")
+```
+
+On regarde les 5 premières lignes des données :
+
+```{r}
+head(x, n = 5)
+```
+
+Il s'agit de données de température de l'eau sur une rivière aux États-Unis. Ces données ont été jumelées à des données hydrologiques (débit) et météorologiques (température de l'air, précipitations, etc.). On veut prédire la température de l'eau.
+
+Les données ont déjà été annotées en entraînement (`TRAIN`) et en validation (`TEST`). On va séparer le jeu de données pour obtenir deux tableaux distincts :
+
+```{r}
+x_train <- x[x$DATASET == "TRAIN", ]
+x_test <- x[x$DATASET == "TEST", ]
+```
+
+On écrit la formule pour les modèles, comme pour la régression :
+
+```{r}
+model_formula <- as.formula("WATERTEMP ~ AIRTEMP + FLOW + PRECIP + CLOUD + SUNSHINE + WIND")
+```
+
+### 2.2. *Bagging*
+
+On entraîne un modèle de bagging avec 500 arbres. On utilise le package randomForest, mais on spécifie qu'on prend tous les six (6) prédicteurs :
+
+```{r}
+model_bag <- randomForest(
+    formula    = model_formula,
+    data       = x_train, 
+    mtry       = 6L,   # Nombre de prédicteurs à utiliser
+    ntree      = 500L  # Nombre d'arbres
+)
+```
+
+On effectue les prédictions sur les jeux d'entraînement et de validation : 
+
+```{r}
+y_train <- predict(model_bag, newdata = x_train)
+y_test <- predict(model_bag, newdata = x_test)
+```
+
+On calcule la racine de l'erreur quadratique moyenne sur l'entraînement : 
+
+```{r}
+sqrt(mean((y_train - x_train$WATERTEMP)^2))
+```
+
+Sur la validation (test) : 
+
+```{r}
+sqrt(mean((y_test - x_test$WATERTEMP)^2))
+```
+
+### 2.3. Forêt aléatoire
+
+On entraîne une forêt aléatoire avec 500 arbres et la racine du nombre de prédicteurs. Comme on a 6 prédicteurs, on ne permet que 2 prédicteurs à chaque séparation dans les arbres sous-jacents :
+
+```{r}
+model_foret <- randomForest(
+    formula    = model_formula,
+    data       = x_train, 
+    mtry       = 2L,    # Nombre de prédicteurs à chaque noeud
+    ntree      = 500L   # Nombre d'arbres
+)
+```
+
+On effectue les prédictions sur les jeux d'entraînement et de validation : 
+
+```{r}
+y_train <- predict(model_foret, newdata = x_train)
+y_test <- predict(model_foret, newdata = x_test)
+```
+
+On calcule la racine de l'erreur quadratique moyenne en entraînement :
+
+```{r}
+sqrt(mean((y_train - x_train$WATERTEMP)^2))
+```
+
+En validation : 
+
+```{r}
+sqrt(mean((y_test - x_test$WATERTEMP)^2))
+```
+
+### 2.4. *Boosting*
+
+On entraîne un modèle de boosting avec 1000 arbres, 1/3 des prédicteurs, un taux d'entraînement de 0.01 et des arbres de 3 feuilles : 
+
+```{r}
+model_boost <- gbm(
+    formula           = model_formula,
+    distribution      = "gaussian",
+    data              = x_train, 
+    shrinkage         = 0.01,    # Taux d'apprentissage
+    n.trees           = 1000,    # Nombre d'arbres
+    interaction.depth = 3,       # Nombre de feuilles
+    bag.fraction      = 1/3      # Fraction des prédicteurs
+)
+```
+
+On effectue les prédictions sur les jeux d'entraînement et de validation : 
+
+```{r message=FALSE}
+y_train <- predict(model_boost, newdata = x_train)
+y_test <- predict(model_boost, newdata = x_test)
+```
+
+On calcule la racine de l'erreur quadratique moyenne en entraînement :
+
+```{r}
+sqrt(mean((y_train - x_train$WATERTEMP)^2))
+```
+
+En validation : 
+
+```{r}
+sqrt(mean((y_test - x_test$WATERTEMP)^2))
+```
+
+Les perfomances sur le jeu de données de validation sont très similaires entre les différents modèles :
+
+* Bagging : 1.763
+* Forêt aléatoire : 1.726
+* Boosting : 1.752
+
+La forêt aléatoire semble performer un peu mieux que les 2 autres modèles.
+
+### 2.5. Interprétation
+
+Importance des prédicteurs dans le modèle de bagging :
+
+```{r}
+varImpPlot(model_bag, main = "Bagging")
+```
+
+Importance des prédicteurs dans la forêt aléatoire :
+
+```{r}
+varImpPlot(model_foret, main = "Forêt Aléatoire")
+```
+
+Importance des prédicteurs dans le modèle de boosting :
+
+```{r message=FALSE}
+summary(model_boost, plotit = TRUE, main = "Boosting", las = 1)
+```
+
+Dans tous les modèles, on voit que la température de l'air est la plus importante, suivie par le débit.
