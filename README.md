@@ -1,4 +1,4 @@
-Exemple de modèles d'apprentissage automatique pour modéliser la température de l'eau 🌊
+Cours ETE414 : Exemple de modèles d'apprentissage automatique ⚙️
 ================================================================================
 
 + Un projet de __Jeremie Boudreault__ dans le cadre de l'enseignement du cours ETE414 à l'INRS.
