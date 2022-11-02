@@ -295,6 +295,15 @@ data.table::fwrite(
     )
 )
 
+# Export.
+data.table::fwrite(
+    x    = data_final,
+    file = file.path(
+        "rmd", "data", sprintf("donnees_temp_eau_reg.csv")
+    )
+)
+
+
 
 # Dataset for fishing season ---------------------------------------------------
 
@@ -312,5 +321,5 @@ data_fishing <- data[, .(
 )]
 
 # Export to rmd/data.
-data.table::fwrite(data_fishing, "rmd/data/donnees_peche_classification.csv")
+data.table::fwrite(data_fishing, "rmd/data/donnees_peche_classif.csv")
 
