@@ -21,7 +21,7 @@ library(data.table)
 # Versioning -------------------------------------------------------------------
 
 
-dataset_ver <- "v1"
+dataset_ver <- "v2"
 
 
 # Hydrological data ------------------------------------------------------------
@@ -57,7 +57,7 @@ hydro_data[, `:=`(
     WATERTEMP_MAX   = as.numeric(WATERTEMP_MAX),
     WATERTEMP_MIN   = as.numeric(WATERTEMP_MIN),
     WATERTEMP_MEAN  = as.numeric(WATERTEMP_MEAN),
-    FLOW_MEAN       = as.numeric(FLOW_MEAN)
+    FLOW_MEAN       = as.numeric(FLOW_MEAN)  / 35.3147  # Convert to m3/s
 )]
 
 # Create YEAR, MONTH and DAYOFYEAR values.
@@ -250,6 +250,43 @@ data[is.na(WIND_MEAN),      WIND_MEAN      := median(data$WIND_MEAN, na.rm = TRU
 
 # Filter on non-freezing months.
 data <- data[MONTH %in% seq.int(4L, 10L)]
+
+
+# Create <TRAIN> and <TEST> prior to export ------------------------------------
+
+
+# Set seed prior to split.
+set.seed(2912L)
+
+# Compute train indice.
+train <- sample(
+    x       = seq.int(1L, nrow(data)),
+    size    = floor(nrow(data) * 0.70),
+    replace = FALSE
+)
+
+# Set <DATASET> indicateur.
+data[train, DATASET := "TRAIN"]
+data[-train, DATASET := "TEST"]
+
+# Check result.
+table(data$DATASET, useNA = "always")
+
+
+# Reorder dataset --------------------------------------------------------------
+
+
+data_final <- data[, .(DATE,
+         DATASET,
+         MONTH,
+         WATERTEMP = WATERTEMP_MEAN,
+         AIRTEMP   = AIRTEMP_MEAN,
+         FLOW      = FLOW_MEAN,
+         PRECIP    = PRECIP_MEAN,
+         CLOUD     = CLOUD,
+         SUNSHINE  = SUNSHINE_TOTAL,
+         WIND      = WIND_MEAN
+)]
 
 
 # Export final dataset ---------------------------------------------------------
