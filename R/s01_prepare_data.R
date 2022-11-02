@@ -277,7 +277,6 @@ table(data$DATASET, useNA = "always")
 
 data_final <- data[, .(DATE,
          DATASET,
-         MONTH,
          WATERTEMP = WATERTEMP_MEAN,
          AIRTEMP   = AIRTEMP_MEAN,
          FLOW      = FLOW_MEAN,
