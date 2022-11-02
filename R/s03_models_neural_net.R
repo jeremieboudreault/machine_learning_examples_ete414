@@ -7,9 +7,8 @@
 # Project : water_temperature_neural_networkds
 # Author  : Jeremie Boudreault
 # Email   : Jeremie.Boudreault [at] inrs [dot] ca
-# Depends : R (v3.6.3)
+# Depends : R (v4.2.1)
 # License : CC BY-NC-ND 4.0
-
 
 
 # Library ----------------------------------------------------------------------
@@ -24,38 +23,38 @@ library(neuralnet)
 
 
 data <- data.table::fread(
-    file.path("data", "cleaned", "hydro_weather_data_v1.csv")
+    file.path("data", "cleaned", "hydro_weather_data_v2.csv")
 )
 
 
-# Scaling ----------------------------------------------------------------------
+# Train-test split -------------------------------------------------------------
 
 
-data_scaled <- scale(data[, -c("DATE", "YEAR", "MONTH", "DAYOFYEAR", "WATERTEMP_MEAN")])
-
-
-# Training-Test split ----------------------------------------------------------
-
-
-# Set seed prior to split.
-set.seed(2912L)
-
-# Compute train indice.
-train <- sample(
-    x       = seq.int(1L, nrow(data_scaled)),
-    size    = floor(nrow(data_scaled) * 0.70),
-    replace = FALSE
-)
-
-# Split data.
-data_scaled_train <- cbind(data[train, c("WATERTEMP_MEAN")], data_scaled[train, ])
-data_scaled_test  <- cbind(data[-train, c("WATERTEMP_MEAN")], data_scaled[-train, ])
+# Split data for train.
+data_train <- data[DATASET == "TRAIN", ]
+data_test <- data[DATASET == "TEST", ]
 
 # Check split.
-nrow(data_scaled_train)
-nrow(data_scaled_test)
-nrow(data_scaled_train)/nrow(data_scaled)
-nrow(data_scaled_test)/nrow(data_scaled)
+nrow(data_train)
+nrow(data_test)
+nrow(data_train)/nrow(data)
+nrow(data_test)/nrow(data)
+
+
+# Scale all predictors ---------------------------------------------------------
+
+
+for (pred in c("AIRTEMP", "FLOW", "PRECIP", "CLOUD", "SUNSHINE", "WIND")) {
+
+    # Compute mean and standard deviation on train only.
+    m <- mean(data_train[[pred]])
+    sd <- sd(data_train[[pred]])
+
+    # Update values on train and test.
+    data.table::set(data_train, j = pred, value = (data_train[[pred]] - m)/sd)
+    data.table::set(data_test, j = pred, value = (data_test[[pred]] - m)/sd)
+
+}
 
 
 # Exports datasets for traceability --------------------------------------------
@@ -63,19 +62,19 @@ nrow(data_scaled_test)/nrow(data_scaled)
 
 # Columns of interest.
 cols <- c(
-    "WATERTEMP_MEAN", "AIRTEMP_MEAN", "FLOW_MEAN", "PRECIP_MEAN",
-    "CLOUD", "SUNSHINE_TOTAL", "WIND_MEAN"
+    "WATERTEMP", "AIRTEMP", "FLOW", "PRECIP",
+    "CLOUD", "SUNSHINE", "WIND"
 )
 
 # Export train data.
 data.table::fwrite(
-    x    = data_scaled_train[, ..cols],
+    x    = data_train[, ..cols],
     file = file.path("data", "cleaned", "water_temp_data_scaled_train.csv")
 )
 
 # Export test data.
 data.table::fwrite(
-    x    = data_scaled_test[, ..cols],
+    x    = data_test[, ..cols],
     file = file.path("data", "cleaned", "water_temp_data_scaled_test.csv")
 )
 
@@ -84,13 +83,13 @@ data.table::fwrite(
 
 
 formula_small <- paste0(
-    "WATERTEMP_MEAN ~ AIRTEMP_MEAN"
+    "WATERTEMP ~ AIRTEMP"
 )
 
 formula_full <- paste0(
-    "WATERTEMP_MEAN ~ ",
-    "AIRTEMP_MEAN + FLOW_MEAN + PRECIP_MEAN + ",
-    "CLOUD + SUNSHINE_TOTAL + WIND_MEAN"
+    "WATERTEMP ~ ",
+    "AIRTEMP + FLOW + PRECIP + ",
+    "CLOUD + SUNSHINE + WIND"
 )
 
 
@@ -99,7 +98,7 @@ formula_full <- paste0(
 
 # Perceptron linéaire (une variable explicative)
 nn_00 <- neuralnet::neuralnet(
-    data          = data_scaled_train,
+    data          = data_train,
     formula       = formula_small,
     hidden        = c(0L),
     linear.output = TRUE,
@@ -110,7 +109,7 @@ nn_00 <- neuralnet::neuralnet(
 
 # Perceptron linéaire.
 nn_0 <- neuralnet::neuralnet(
-    data          = data_scaled_train,
+    data          = data_train,
     formula       = formula_full,
     hidden        = c(0L),
     linear.output = TRUE,
@@ -121,7 +120,7 @@ nn_0 <- neuralnet::neuralnet(
 
 # Perceptron multicouche avec 5 neuronnes dans la première couche.
 nn_5 <- neuralnet::neuralnet(
-    data          = data_scaled_train,
+    data          = data_train,
     formula       = formula_full,
     hidden        = c(5L),
     linear.output = TRUE,
@@ -132,7 +131,7 @@ nn_5 <- neuralnet::neuralnet(
 
 # Perceptron multicouche avec 5 neuronnes dans la première couche et fonction tanh.
 nn_5_tanh <- neuralnet::neuralnet(
-    data          = data_scaled_train,
+    data          = data_train,
     formula       = formula_full,
     hidden        = c(5L),
     act.fct       = "tanh",
@@ -144,7 +143,7 @@ nn_5_tanh <- neuralnet::neuralnet(
 
 # Perceptron multicouche avec 7 et 5 neurones et fonction tanh.
 nn_75_tanh <- neuralnet::neuralnet(
-    data          = data_scaled_train,
+    data          = data_train,
     formula       = formula_full,
     hidden        = c(7L, 5L),
     act.fct       = "tanh",
@@ -174,29 +173,19 @@ nn_list <- list(
 pred_train <- lapply(
     X       = nn_list,
     FUN     = predict,
-    newdata = data_scaled_train
+    newdata = data_train
 )
 
 # Évaluation des modèles (test).
 pred_test <- lapply(
     X       = nn_list,
     FUN     = predict,
-    newdata = data_scaled_test
+    newdata = data_test
 )
 
-# On veut transformer nos prédictions en valeurs de températures.
-mean_temp <- 14.56391
-std_temp <- 5.108149
-
-# On convertit nos prédictions en températures.
-for (i in 1:5) {
-    pred_train[[i]] <- pred_train[[i]] * std_temp + mean_temp
-    pred_test[[i]]  <- pred_test[[i]]  * std_temp + mean_temp
-}
-
 # On extrait les observations.
-obs_train <- train[, "WATERTEMP_MEAN"] * std_temp + mean_temp
-obs_test  <- test[, "WATERTEMP_MEAN"]  * std_temp + mean_temp
+obs_train <- train[, "WATERTEMP"]
+obs_test  <- test[, "WATERTEMP"]
 
 # Fonction pour calculer l'erreur quandratique moyenne (RMSE).
 calculate_rmse <- function(obs, pred) {
