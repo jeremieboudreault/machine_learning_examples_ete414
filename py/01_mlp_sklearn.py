@@ -67,13 +67,13 @@ y_train = train[y_col]
 x_test = test.loc[:, test.columns != y_col]
 y_test = test[y_col]
 
-# Set folds for train.
+# Set folds for train (not used for now).
 k = 5
 folds = random.choices([1, 2, 3, 4, 5], k = len(y_train))
 pd.value_counts(folds)/len(y_train)
 
 
-# Fit MLP using scikit-learn ---------------------------------------------------
+# Set-up for cross validation --------------------------------------------------
 
 
 # Hyperparameters.
@@ -118,12 +118,28 @@ cv = GridSearchCV(
     verbose    = 3                                  # Show results while fitting.
 )
 
-# Process cross validation.
+
+# Cross validaiton -------------------------------------------------------------
+
+
+# Process cross-validation.
 cv.fit(x_train, y_train)
 
 # Extract results of the fitting.
 cv_results = pd.DataFrame(cv.cv_results_)
 View(cv_results)
+
+# Export results.
+cv_results.to_csv(
+    path_or_buf = "tmp/mlp_sklearn_results.csv", 
+    sep         = ";", 
+    decimal     = ".",
+    index       = False
+)
+
+
+# Performance of the best model ------------------------------------------------
+
 
 # Extract best model.
 model = cv.best_estimator_
@@ -135,3 +151,9 @@ rmse_test = sklearn.metrics.root_mean_squared_error(model.predict(x_test), y_tes
 # Print results.
 print("RMSE (train) = ", rmse_train)
 print("RMSE (test) = ", rmse_test)
+
+
+# Interpretation ---------------------------------------------------------------
+
+
+# To be completed...
