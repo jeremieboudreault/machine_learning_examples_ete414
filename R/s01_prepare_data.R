@@ -7,9 +7,8 @@
 # Project : water_temperature_neural_networkds
 # Author  : Jeremie Boudreault
 # Email   : Jeremie.Boudreault [at] inrs [dot] ca
-# Depends : R (v3.6.3)
+# Depends : R (v4.2.1)
 # License : CC BY-NC-ND 4.0
-
 
 
 # Library ----------------------------------------------------------------------
