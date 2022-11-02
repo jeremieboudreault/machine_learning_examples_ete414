@@ -107,15 +107,17 @@ reg_lines[variable == "Degree3",
 ggplot(
     data   = data,
     mapping = aes(
-        x = AIRTEMP,
-        y = WATERTEMP
+        x    = AIRTEMP,
+        y    = WATERTEMP
     )
 ) +
 geom_point(
+    mapping = aes(fill = DATASET),
     alpha  = 0.1,
     stroke = 0,
     size   = 2L,
-    shape  = 19L
+    shape  = 21L,
+    show.legend = FALSE
 ) +
 geom_line(
     data = reg_lines,
@@ -130,8 +132,10 @@ labs(
     title = "Linear models for water temperature",
     x     = "Air temperature (ºC)",
     y     = "Water temperature (ºC)",
-    color = ""
+    color = NULL,
+    fill  = NULL
 ) +
+scale_fill_manual(values = c("darkred", "black")) +
 jtheme(border = "all") +
 theme(legend.position = c(0.835, 0.125))
 
