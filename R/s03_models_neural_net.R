@@ -103,8 +103,8 @@ nn_00 <- neuralnet::neuralnet(
     hidden        = c(0L),
     linear.output = TRUE,
     lifesign      = "full",
-    learningrate  = 0.01,
-    threshold     = 0.1
+    learningrate  = 0.1,
+    threshold     = 1
 )
 
 # Perceptron linéaire.
@@ -114,8 +114,8 @@ nn_0 <- neuralnet::neuralnet(
     hidden        = c(0L),
     linear.output = TRUE,
     lifesign      = "full",
-    learningrate  = 0.01,
-    threshold     = 0.1
+    learningrate  = 0.1,
+    threshold     = 1
 )
 
 # Perceptron multicouche avec 5 neuronnes dans la première couche.
@@ -125,8 +125,8 @@ nn_5 <- neuralnet::neuralnet(
     hidden        = c(5L),
     linear.output = TRUE,
     lifesign      = "full",
-    learningrate  = 0.01,
-    threshold     = 0.1
+    learningrate  = 0.1,
+    threshold     = 1
 )
 
 # Perceptron multicouche avec 5 neuronnes dans la première couche et fonction tanh.
@@ -137,8 +137,8 @@ nn_5_tanh <- neuralnet::neuralnet(
     act.fct       = "tanh",
     linear.output = TRUE,
     lifesign      = "full",
-    learningrate  = 0.01,
-    threshold     = 0.1
+    learningrate  = 0.1,
+    threshold     = 1
 )
 
 # Perceptron multicouche avec 7 et 5 neurones et fonction tanh.
@@ -149,8 +149,8 @@ nn_75_tanh <- neuralnet::neuralnet(
     act.fct       = "tanh",
     linear.output = TRUE,
     lifesign      = "full",
-    learningrate  = 0.05,
-    threshold     = 0.1
+    learningrate  = 0.5,
+    threshold     = 5
 )
 
 # On affiche les réseaux.
@@ -184,8 +184,8 @@ pred_test <- lapply(
 )
 
 # On extrait les observations.
-obs_train <- train[, "WATERTEMP"]
-obs_test  <- test[, "WATERTEMP"]
+obs_train <- unlist(data_train[, "WATERTEMP"])
+obs_test  <- unlist(data_test[, "WATERTEMP"])
 
 # Fonction pour calculer l'erreur quandratique moyenne (RMSE).
 calculate_rmse <- function(obs, pred) {
@@ -205,3 +205,8 @@ lapply(
     FUN = calculate_rmse,
     obs = obs_test
 )
+
+# Multiple linear regression comparison.
+lm(WATERTEMP ~ AIRTEMP, data = data_train)
+lm(WATERTEMP ~ AIRTEMP + FLOW + PRECIP + CLOUD + SUNSHINE + WIND, data = data_train)
+
